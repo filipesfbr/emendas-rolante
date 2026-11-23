@@ -22,7 +22,7 @@ export function indicado(e: Emenda): Valor | null {
   return null;
 }
 
-/** A despesa do Estado foi lida nesta coleta. Sem ela, «sem empenho» seria falso: é «não coletada». */
+/** A despesa do Estado foi lida nesta coleta. Sem ela, “sem empenho” seria falso: é “não coletada”. */
 export const execucaoColetada = (e: Emenda) => Boolean(e.rs?.exercicios_lidos.length);
 
 /** Soma de uma fase da despesa do Estado (CAGE). Anulação vem negativa e entra na soma. */
@@ -99,13 +99,13 @@ export function alertas(e: Emenda): string[] {
   const a: string[] = [];
   for (const f of e.fns) {
     if (f.empenhado > 0 && f.pago === 0) {
-      a.push(`Empenhada pelo Ministério da Saúde e sem pagamento até a coleta. Situação no FNS: «${f.situacao ?? 'sem situação'}»${f.data_situacao ? ` em ${formatDate(f.data_situacao)}` : ''}.`);
+      a.push(`Empenhada pelo Ministério da Saúde e sem pagamento até a coleta. Situação no FNS: “${f.situacao ?? 'sem situação'}”${f.data_situacao ? ` em ${formatDate(f.data_situacao)}` : ''}.`);
     }
   }
   for (const t of e.transferegov) {
-    if (t.situacao.startsWith('IMPEDIDO')) a.push(`Plano de ação ${t.codigo} com impedimento no Transferegov: «${t.situacao}».`);
+    if (t.situacao.startsWith('IMPEDIDO')) a.push(`Plano de ação ${t.codigo} com impedimento no Transferegov: “${t.situacao}”.`);
   }
-  // Sem a despesa do Estado lida não há fato a mostrar: «sem empenho» seria falso.
+  // Sem a despesa do Estado lida não há fato a mostrar: “sem empenho” seria falso.
   if (e.rs && e.rs.valor > 0 && execucaoColetada(e)) {
     if (!e.rs.execucao.length) a.push(`Destinada no orçamento do RS de ${e.rs.ano} e sem nenhum empenho na despesa do Estado até a coleta.`);
     else if (faseRs(e, 'Pagamento') === 0) a.push('Empenhada pelo Estado e sem pagamento na despesa do RS até a coleta.');

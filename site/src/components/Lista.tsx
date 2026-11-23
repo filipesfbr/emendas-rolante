@@ -27,7 +27,6 @@ function Cartao({ e }: { e: Emenda }) {
         </div>
         <p className="card-o">{titulo(e)}</p>
         {e.rs?.destino && !e.abase.length && <p className="card-m">Destino: {e.rs.destino}</p>}
-        {e.esfera === 'municipal' && <p className="selo-mun">{SELO_MUNICIPAL}</p>}
         {alertas(e).length > 0 && <p className="card-al">Parada ou atrasada: ver detalhe</p>}
         <dl className="card-b">
           <div>
@@ -52,7 +51,7 @@ function Cartao({ e }: { e: Emenda }) {
   );
 }
 
-/** Totais só desta esfera: as três nunca são somadas num «total trazido». */
+/** Totais só desta esfera: as três nunca são somadas num “total trazido”. */
 function Totais({ esfera, lista, ano }: { esfera: Esfera; lista: Emenda[]; ano: number }) {
   const t = totais(lista);
   const caixa = (rotulo: string, v: number | null, nota: string) => (
@@ -69,7 +68,7 @@ function Totais({ esfera, lista, ano }: { esfera: Esfera; lista: Emenda[]; ano: 
       </p>
       <dl>
         {caixa('Indicado', t.indicado, 'Valor de cada emenda na fonte mais próxima da prefeitura')}
-        {esfera === 'federal' && caixa('Pago pela União', t.chegou, 'Pagamentos a Rolante na CGU, em qualquer mês')}
+        {esfera === 'federal' && caixa('Pago pela União', t.chegou, 'Pagamentos a Rolante/RS na CGU, em qualquer mês')}
         {esfera === 'estadual' && caixa('Pago pelo Estado', t.chegou, 'Pagamentos na despesa do Estado (CAGE), à prefeitura ou à entidade')}
         {esfera !== 'municipal' && caixa('A prefeitura já pagou', t.pagou, 'Despesas pagas com a emenda, no portal da prefeitura')}
       </dl>
@@ -81,8 +80,7 @@ function Totais({ esfera, lista, ano }: { esfera: Esfera; lista: Emenda[]; ano: 
 function Tipo({ esfera }: { esfera: Esfera }) {
   const t = TIPOS[esfera];
   return (
-    <details className="panel sec tipo">
-      <summary>O que é uma emenda {NOME_ESFERA[esfera].um.toLowerCase()}?</summary>
+    <div className="tipo" aria-live="polite">
       <dl className="tipo-d">
         <div>
           <dt>Quem indica</dt>
@@ -98,7 +96,7 @@ function Tipo({ esfera }: { esfera: Esfera }) {
           <dd>{t.ironia}</dd>
         </div>
       </dl>
-    </details>
+    </div>
   );
 }
 
@@ -119,7 +117,7 @@ export function Lista({ dados }: { dados: Dados }) {
           <span className="topo-t">enviadas a Rolante/RS</span>
         </h1>
         <div className="src">
-          <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante ·</span>
+          <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante/RS ·</span>
           <Coletado em={manifest.coletado_em} />
         </div>
       </section>
@@ -129,19 +127,18 @@ export function Lista({ dados }: { dados: Dados }) {
           {GERAL.titulo}
         </h2>
         <p className="intro-p">{GERAL.texto}</p>
+        <div className="filtros" role="group" aria-label="Filtros">
+          {anos.length > 1 && <Seg label="Ano" valor={ano} opcoes={anos.map((a) => [a, String(a)])} onChange={setAno} />}
+          <Seg
+            label="Tipo de emenda"
+            valor={esfera}
+            opcoes={ESFERAS.map((x) => [x, `${NOME_ESFERA[x].varios} ${formatInt(doAno.filter((e) => e.esfera === x).length)}`])}
+            onChange={setEsfera}
+          />
+        </div>
+        <Tipo esfera={esfera} />
       </section>
 
-      <section className="filtros" aria-label="Filtros">
-        {anos.length > 1 && <Seg label="Ano" valor={ano} opcoes={anos.map((a) => [a, String(a)])} onChange={setAno} />}
-        <Seg
-          label="Tipo de emenda"
-          valor={esfera}
-          opcoes={ESFERAS.map((x) => [x, `${NOME_ESFERA[x].varios} ${formatInt(doAno.filter((e) => e.esfera === x).length)}`])}
-          onChange={setEsfera}
-        />
-      </section>
-
-      <Tipo esfera={esfera} />
       <Totais esfera={esfera} lista={visiveis} ano={ano} />
 
       {visiveis.length === 0 ? (

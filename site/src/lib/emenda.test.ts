@@ -46,7 +46,7 @@ const lanc = (fase: string, valor: number) => ({ exercicio: 2026, data: '2026-07
 const empenho = (pago: number) => ({ empenho: 1, data: '2026-03-01', credor: null, empenhado: pago, liquidado: pago, pago, licitacao: null });
 
 describe('valores', () => {
-  it('municipal não tem «chegou»: o dinheiro já é da prefeitura', () => {
+  it('municipal não tem “chegou”: o dinheiro já é da prefeitura', () => {
     expect(chegou(emenda({ abase: [abase()] }))).toBeNull();
   });
   it('indicado vem da prefeitura quando ela tem a emenda, com a fonte junto', () => {
@@ -73,7 +73,7 @@ describe('valores', () => {
     expect(prefeituraPagou(emenda({ esfera: 'federal' }))).toBeNull();
     expect(prefeituraPagou(emenda({ esfera: 'federal', abase: [abase({ empenhos: [empenho(10), empenho(5.5)] })] }))).toEqual({ valor: 15.5, fonte: 'Prefeitura' });
   });
-  it('municipal nunca tem «prefeitura pagou»: os empenhos são da dotação inteira', () => {
+  it('municipal nunca tem “prefeitura pagou”: os empenhos são da dotação inteira', () => {
     expect(prefeituraPagou(emenda({ abase: [abase({ empenhos: [empenho(1287000)] })] }))).toBeNull();
   });
 });
@@ -93,7 +93,7 @@ describe('estadual', () => {
     expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Empenho', 100000)]) }))[0]).toMatch(/sem pagamento/);
     expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Pagamento', 100000)]) }))).toEqual([]);
   });
-  it('despesa do Estado não lida: sem «chegou» e sem alerta (não é «sem empenho»)', () => {
+  it('despesa do Estado não lida: sem “chegou” e sem alerta (não é “sem empenho”)', () => {
     const e = emenda({ esfera: 'estadual', rs: { ...rs(), exercicios_lidos: [] } });
     expect(chegou(e)).toBeNull();
     expect(alertas(e)).toEqual([]);

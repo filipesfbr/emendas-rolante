@@ -44,7 +44,7 @@ export function PilulaEsfera({ esfera }: { esfera: Esfera }) {
 // Coleta mensal (dia 25): passou de 35 dias, a última coleta falhou ou não rodou.
 const LIMITE_ATRASO_MS = 35 * 86_400_000;
 
-/** «coletado em …» com um selo discreto quando a última coleta passou do prazo. */
+/** “coletado em …” com um selo discreto quando a última coleta passou do prazo. */
 export function Coletado({ em }: { em: string }) {
   const atrasado = Date.now() - new Date(em).getTime() > LIMITE_ATRASO_MS;
   return (
@@ -82,7 +82,7 @@ export function Seg<T extends string | number>({
   );
 }
 
-/** Número com rótulo e a fonte embaixo. Sem valor: «—» e o motivo. */
+/** Número com rótulo e a fonte embaixo. Sem valor: “—” e o motivo. */
 export function Numero({ rotulo, v, vazio }: { rotulo: string; v: Valor | null; vazio: string }) {
   return (
     <div className="numero">

@@ -1,6 +1,6 @@
 {
   "name": "emendas-rolante",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Emendas parlamentares federais, estaduais e municipais de Rolante-RS: quem indicou, quanto chegou e o que foi feito com o dinheiro, com dados da CGU, do FNS, do Transferegov e do Portal da Transparência da Prefeitura. Site independente.",

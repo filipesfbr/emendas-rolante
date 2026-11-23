@@ -39,7 +39,7 @@ function Linhas({ itens }: { itens: [ReactNode, ReactNode, ReactNode?][] }) {
 function Cgu({ e }: { e: Emenda }) {
   const c = e.cgu!;
   return (
-    <Secao titulo="Pagamentos da União (CGU)" n={c.pagamentos.length} aberta>
+    <Secao titulo="Pagamentos da União (CGU)" n={c.pagamentos.length}>
       {c.tipo && <p className="d">Tipo na CGU: {c.tipo}</p>}
       {c.pagamentos.length ? (
         <Linhas itens={c.pagamentos.map((p) => [`Pago em ${formatMes(p.mes)}`, formatBRL(p.valor), p.favorecido])} />
@@ -58,7 +58,7 @@ function Cgu({ e }: { e: Emenda }) {
 
 function Fns({ e }: { e: Emenda }) {
   return (
-    <Secao titulo="Ministério da Saúde (FNS)" n={e.fns.length} aberta>
+    <Secao titulo="Ministério da Saúde (FNS)" n={e.fns.length}>
       {e.fns.map((f) => (
         <div key={f.proposta} className="bloco-d">
           <span className="rot">
@@ -97,7 +97,7 @@ function Fns({ e }: { e: Emenda }) {
 
 function Transferegov({ e }: { e: Emenda }) {
   return (
-    <Secao titulo="Emenda Pix (Transferegov)" n={e.transferegov.length} aberta>
+    <Secao titulo="Emenda Pix (Transferegov)" n={e.transferegov.length}>
       {e.transferegov.map((t) => (
         <div key={t.id} className="bloco-d">
           <span className="rot">
@@ -138,7 +138,7 @@ function Transferegov({ e }: { e: Emenda }) {
 function Rs({ e }: { e: Emenda }) {
   const r = e.rs!;
   return (
-    <Secao titulo="Governo do RS (SEFAZ/CAGE)" n={r.execucao.length} aberta>
+    <Secao titulo="Governo do RS (SEFAZ/CAGE)" n={r.execucao.length}>
       <p className="d">Emenda nº {r.numero} do orçamento do RS de {r.ano}.</p>
       <div className="bloco-d">
         <span className="rot">Destinação</span>
@@ -180,7 +180,7 @@ function Prefeitura({ e }: { e: Emenda }) {
   return (
     <>
       {e.abase.map((a) => (
-        <Secao key={a.codigo} titulo="Na prefeitura (Portal da Transparência de Rolante)" n={a.empenhos.length} aberta>
+        <Secao key={a.codigo} titulo="Na prefeitura (Portal da Transparência de Rolante/RS)" n={a.empenhos.length} aberta={a.empenhos.length + a.receitas.length + a.beneficiarios.length > 0}>
           <dl className="dados" style={{ marginTop: 0, paddingTop: 0, borderTop: 0 }}>
             <div>
               <dt>Nº na prefeitura</dt>
@@ -327,7 +327,7 @@ export function Detalhe({ dados, chave }: { dados: Dados; chave: string }) {
       </div>
 
       <p className="src bloco-d">
-        <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante ·</span>
+        <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante/RS ·</span>
         <Coletado em={dados.manifest.coletado_em} />
       </p>
       <p className="src">
