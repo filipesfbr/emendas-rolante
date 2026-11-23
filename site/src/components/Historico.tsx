@@ -24,7 +24,7 @@ export function Historico({ manifest, pagamentos }: { manifest: Manifest; pagame
     <section className="panel hist-sec" aria-labelledby="h-hist">
       <span className="eyebrow">Só federais · CGU</span>
       <h2 id="h-hist" className="h3" style={{ marginTop: 8 }}>
-        Quanto a União pagou a Rolante em emendas, por ano
+        Quanto a União pagou a Rolante/RS em emendas, por ano
       </h2>
       <p className="d" style={{ maxWidth: '64ch' }}>
         Soma dos pagamentos feitos ao Município e aos fundos municipais, pelo ano do pagamento. Só entra o que foi pago: emenda empenhada e

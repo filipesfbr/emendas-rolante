@@ -5,12 +5,12 @@ import { LinkExterno } from './ui.tsx';
 
 const PRINCIPIOS = [
   ['Cada número com a sua fonte', 'Valor indicado, pago e gasto vêm de fontes diferentes. Cada um aparece com o nome da fonte, sem misturar.'],
-  ['Três esferas, três contas', 'Federal, estadual e municipal ficam sempre separadas. Nunca somamos as três num «total trazido».'],
+  ['Três esferas, três contas', 'Federal, estadual e municipal ficam sempre separadas. Nunca somamos as três num “total trazido”.'],
   ['Sem nomes de pessoas', 'Quando a despesa pode ser com pessoa física, o credor não é identificado. O nome continua no portal.'],
   ['Coleta que falha em voz alta', 'Se uma fonte sai do ar ou muda de formato, a coleta para e o site fica com os dados anteriores.'],
 ] as const;
 
-/** Mesmo padrão da seção «De onde vêm os dados» do Licitações, do Impostômetro e do Gastômetro. */
+/** Mesmo padrão da seção “De onde vêm os dados” do Licitações, do Impostômetro e do Gastômetro. */
 export function Origem({ manifest }: { manifest: Manifest }) {
   const f = manifest.fontes;
   const ano = Math.max(...manifest.anos);
@@ -61,13 +61,13 @@ export function Origem({ manifest }: { manifest: Manifest }) {
         <div>
           <h3>SEFAZ/RS (emendas estaduais)</h3>
           <p>
-            Destinação de cada emenda dos deputados estaduais a Rolante (deputado, partido, valor, destino) e a execução na despesa do
+            Destinação de cada emenda dos deputados estaduais a Rolante/RS (deputado, partido, valor, destino) e a execução na despesa do
             Estado (CAGE): empenho, liquidação e pagamento, à prefeitura ou à entidade. Arquivos abertos da SEFAZ, sem chave.{' '}
             <LinkExterno href={f.rs.portal}>Abrir o painel do RS</LinkExterno>
           </p>
         </div>
         <div>
-          <h3>Portal da Transparência de Rolante</h3>
+          <h3>Portal da Transparência de Rolante/RS</h3>
           <p>
             Emendas federais, estaduais e municipais registradas pela prefeitura: autor, partido, entrada na conta, despesas e credores. Só
             existe a partir de {f.abase.desde}. <LinkExterno href={f.abase.portal}>Abrir o portal</LinkExterno>
@@ -78,7 +78,7 @@ export function Origem({ manifest }: { manifest: Manifest }) {
       <div className="origem-duas">
         <div>
           <h3>Dinheiro parado</h3>
-          <p>{AVISO_PARADO} Quando mostramos «parada ou atrasada», é o fato que a fonte registra, não uma acusação.</p>
+          <p>{AVISO_PARADO} Quando mostramos “parada ou atrasada”, é o fato que a fonte registra, não uma acusação.</p>
         </div>
         <div>
           <h3>Partido</h3>
