@@ -2,7 +2,7 @@ import type { PagamentoCgu } from '../../../coletor/src/tipos.ts';
 import type { Manifest } from '../App.tsx';
 import { formatBRL, formatInt, formatMes } from '../lib/format.ts';
 
-/** Pagamentos federais por ano do pagamento (CGU). Só federal: é a única esfera com série desde 2019. */
+/** Pagamentos federais por ano do pagamento (CGU), de `ano_minimo` até a coleta. Só federal: é a única esfera com série paga. */
 export function porAno(pagamentos: PagamentoCgu[], desde: number, ate: number) {
   const anos = Array.from({ length: ate - desde + 1 }, (_, i) => desde + i);
   return anos.map((ano) => {
@@ -18,7 +18,7 @@ export function porAno(pagamentos: PagamentoCgu[], desde: number, ate: number) {
 
 export function Historico({ manifest, pagamentos }: { manifest: Manifest; pagamentos: PagamentoCgu[] }) {
   const ate = manifest.fontes.cgu.dados_ate;
-  const linhas = porAno(pagamentos, manifest.historico_desde, Number(ate.slice(0, 4)));
+  const linhas = porAno(pagamentos, manifest.ano_minimo, Number(ate.slice(0, 4)));
   const maior = Math.max(...linhas.map((l) => l.centavos), 1);
   return (
     <section className="panel hist-sec" aria-labelledby="h-hist">

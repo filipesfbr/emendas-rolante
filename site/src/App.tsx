@@ -8,12 +8,13 @@ import { Lista } from './components/Lista.tsx';
 export type Manifest = {
   coletado_em: string;
   anos: number[];
-  historico_desde: number;
+  ano_minimo: number;
   favorecidos: Record<string, string>;
   fontes: {
     cgu: { pagina: string; atualizado_em: string | null; dados_ate: string };
     fns: { portal: string };
     transferegov: { portal: string };
+    rs: { portal: string; destinacao: string; destinacao_atualizada_em: string | null; despesas_atualizadas_em: Record<string, string | null> };
     abase: { portal: string; desde: number };
   };
   repositorio: string;

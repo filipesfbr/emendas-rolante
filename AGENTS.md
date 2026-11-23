@@ -11,6 +11,9 @@ Licitações, Impostômetro e Gastômetro Rolante (mesma stack e pipeline). Vis�
 - Ironia só nos textos de `site/src/lib/textos.ts`, mirando o sistema, nunca uma pessoa. Dados neutros.
 - Coleta falha visivelmente quando uma fonte quebra; nunca grava vazio. Abase: ≥ 1,2 s entre chamadas.
 - R8: CPF nunca chega ao repositório; credor sem sinal de pessoa jurídica vai sem nome. Dados bancários nunca.
+- Recorte: emendas de 2025 em diante, em todas as fontes e esferas. O ano mínimo mora só em `anoMinimo`
+  (`config/fonte.json`). Regras de cada fonte: `docs/fonte-de-verdade.md` (R1–R9).
+- Estadual: destinação e despesa da SEFAZ/CAGE do RS, casadas com a Abase por Ano + nº da emenda.
 - A branch `data` é o registro público dos snapshots. Fixtures sintéticas.
 
 ## Identidade visual

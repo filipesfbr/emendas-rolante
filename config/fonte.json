@@ -7,7 +7,7 @@
     "11425702000133": "Fundo Municipal de Saúde de Rolante",
     "14806747000146": "Fundo Municipal de Assistência Social de Rolante"
   },
-  "historicoDesde": 2019,
+  "anoMinimo": 2025,
   "cgu": {
     "zip": "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/emendas-parlamentares/EmendasParlamentares.zip",
     "pagina": "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares"
@@ -19,6 +19,12 @@
   "transferegov": {
     "api": "https://api.transferegov.gestao.gov.br/transferenciasespeciais/",
     "portal": "https://especiais.transferegov.sistema.gov.br/"
+  },
+  "rs": {
+    "destinacao": "https://arquivostransparencia.sefaz.rs.gov.br/DadosAbertos/Emendas%20Parlamentares%20Estaduais.zip",
+    "despesas": "https://arquivostransparencia.sefaz.rs.gov.br/DadosAbertos/Despesas%20do%20Estado-{ano}.zip",
+    "portal": "https://www.transparencia.rs.gov.br/emendas-parlamentares/emendas-parlamentares-estaduais/dados/",
+    "codMunicipio": 103
   },
   "abase": {
     "api": "https://apitransparencia.abase.com.br/",

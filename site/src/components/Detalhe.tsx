@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Emenda } from '../../../coletor/src/tipos.ts';
 import type { Dados } from '../App.tsx';
-import { alertas, autores, AVISO_PARADO, chegou, indicado, NOME_ESFERA, partidos, prefeituraPagou, titulo } from '../lib/emenda.ts';
+import { alertas, autores, AVISO_PARADO, chegou, faseRs, indicado, NOME_ESFERA, partidos, prefeituraPagou, titulo } from '../lib/emenda.ts';
 import { formatBRL, formatDate, formatMes } from '../lib/format.ts';
 import { SELO_MUNICIPAL } from '../lib/textos.ts';
 import { Coletado, IcoVoltar, LinkExterno, Numero, PilulaEsfera } from './ui.tsx';
@@ -135,6 +135,41 @@ function Transferegov({ e }: { e: Emenda }) {
   );
 }
 
+function Rs({ e }: { e: Emenda }) {
+  const r = e.rs!;
+  return (
+    <Secao titulo="Governo do RS (SEFAZ/CAGE)" n={r.execucao.length} aberta>
+      <p className="d">Emenda nº {r.numero} do orçamento do RS de {r.ano}.</p>
+      <div className="bloco-d">
+        <span className="rot">Destinação</span>
+        <Linhas itens={r.itens.map((i) => [i.subtitulo, formatBRL(i.valor), [i.orgao, i.projeto].filter(Boolean).join(' · ')])} />
+      </div>
+      <dl className="dados">
+        {['Empenho', 'Liquidação', 'Pagamento'].map((f) => (
+          <div key={f}>
+            <dt>{f === 'Empenho' ? 'Empenhado' : f === 'Liquidação' ? 'Liquidado' : 'Pago'}</dt>
+            <dd className="num">{formatBRL(faseRs(e, f))}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="bloco-d">
+        <span className="rot">Despesa do Estado</span>
+        {r.execucao.length ? (
+          <Linhas
+            itens={r.execucao.map((l) => [
+              `${l.fase} · ${l.favorecido ?? 'Favorecido sem CNPJ (pode ser pessoa física; não identificado aqui)'}`,
+              formatBRL(l.valor),
+              `${data(l.data)} · ${l.orgao}${l.cnpj ? ` · CNPJ ${l.cnpj}` : ''}`,
+            ])}
+          />
+        ) : (
+          <p>Nenhum lançamento na despesa do Estado até a coleta.</p>
+        )}
+      </div>
+    </Secao>
+  );
+}
+
 function Prefeitura({ e }: { e: Emenda }) {
   return (
     <>
@@ -243,9 +278,13 @@ export function Detalhe({ dados, chave }: { dados: Dados; chave: string }) {
       <dl className="dados numeros">
         <Numero rotulo="Indicado" v={indicado(e)} vazio="Sem valor nas fontes" />
         {e.esfera !== 'municipal' && (
-          <Numero rotulo={e.esfera === 'federal' ? 'Pago pela União' : 'Entrou na conta'} v={chegou(e)} vazio="Sem registro" />
+          <Numero rotulo={e.esfera === 'federal' ? 'Pago pela União' : 'Pago pelo Estado'} v={chegou(e)} vazio="Sem registro" />
         )}
-        <Numero rotulo="A prefeitura já pagou" v={prefeituraPagou(e)} vazio="Emenda fora do portal da prefeitura" />
+        <Numero
+          rotulo="A prefeitura já pagou"
+          v={prefeituraPagou(e)}
+          vazio={e.rs && !e.abase.length ? 'Não passa pela prefeitura' : 'Emenda fora do portal da prefeitura'}
+        />
       </dl>
 
       {al.length > 0 && (
@@ -266,16 +305,21 @@ export function Detalhe({ dados, chave }: { dados: Dados; chave: string }) {
         {e.cgu && <Cgu e={e} />}
         {e.fns.length > 0 && <Fns e={e} />}
         {e.transferegov.length > 0 && <Transferegov e={e} />}
+        {e.rs && <Rs e={e} />}
         <Prefeitura e={e} />
       </div>
 
       <p className="src bloco-d">
-        <span>Fontes: CGU, FNS, Transferegov e Portal da Transparência de Rolante ·</span>
+        <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante ·</span>
         <Coletado em={dados.manifest.coletado_em} />
       </p>
       <p className="src">
         <LinkExterno href={dados.manifest.fontes.abase.portal}>Conferir no portal da prefeitura</LinkExterno>
-        <LinkExterno href={dados.manifest.fontes.cgu.pagina}>Dados da CGU</LinkExterno>
+        {e.esfera === 'estadual' ? (
+          <LinkExterno href={dados.manifest.fontes.rs.portal}>Painel de emendas do RS</LinkExterno>
+        ) : (
+          <LinkExterno href={dados.manifest.fontes.cgu.pagina}>Dados da CGU</LinkExterno>
+        )}
       </p>
     </article>
   );

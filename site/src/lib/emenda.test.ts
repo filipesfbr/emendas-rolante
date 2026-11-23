@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Emenda, EmendaAbase } from '../../../coletor/src/tipos.ts';
+import type { Emenda, EmendaAbase, EmendaRs } from '../../../coletor/src/tipos.ts';
 import { alertas, chegou, indicado, partidos, prefeituraPagou, totais } from './emenda.ts';
 
 // Dados sintéticos.
@@ -27,9 +27,21 @@ const emenda = (o: Partial<Emenda> = {}): Emenda => ({
   cgu: null,
   fns: [],
   transferegov: [],
+  rs: null,
   abase: [],
   ...o,
 });
+const rs = (execucao: EmendaRs['execucao'] = []): EmendaRs => ({
+  ano: 2026,
+  numero: '740',
+  deputado: 'DEPUTADO TESTE',
+  partido: 'YY',
+  valor: 100000,
+  itens: [{ acao: '102826001', orgao: null, projeto: null, subtitulo: 'Ep 740 - Clube Teste - Cidade', complemento: null, valor: 100000 }],
+  destino: 'Clube Teste',
+  execucao,
+});
+const lanc = (fase: string, valor: number) => ({ exercicio: 2026, data: '2026-07-02', fase, favorecido: null, cnpj: null, orgao: 'O', valor });
 const empenho = (pago: number) => ({ empenho: 1, data: '2026-03-01', credor: null, empenhado: pago, liquidado: pago, pago, licitacao: null });
 
 describe('valores', () => {
@@ -59,6 +71,23 @@ describe('valores', () => {
   it('sem a emenda no portal da prefeitura, não há como saber o que ela pagou', () => {
     expect(prefeituraPagou(emenda({ esfera: 'federal' }))).toBeNull();
     expect(prefeituraPagou(emenda({ abase: [abase({ empenhos: [empenho(10), empenho(5.5)] })] }))).toEqual({ valor: 15.5, fonte: 'Prefeitura' });
+  });
+});
+
+describe('estadual', () => {
+  it('chegou é o pago na despesa do Estado, com anulação descontada; sem RS não há valor', () => {
+    const e = emenda({ esfera: 'estadual', rs: rs([lanc('Empenho', 100000), lanc('Pagamento', 100000), lanc('Pagamento', -40000)]) });
+    expect(chegou(e)).toEqual({ valor: 60000, fonte: 'CAGE/RS' });
+    expect(indicado(e)).toEqual({ valor: 100000, fonte: 'SEFAZ/RS' });
+    expect(chegou(emenda({ esfera: 'estadual', abase: [abase({ recurso: 'Estadual' })] }))).toBeNull();
+  });
+  it('partido do RS entra com a fonte', () => {
+    expect(partidos(emenda({ esfera: 'estadual', rs: rs() }))).toEqual([{ partido: 'YY', fonte: 'SEFAZ/RS' }]);
+  });
+  it('alerta: destinada sem empenho, e empenhada sem pagamento', () => {
+    expect(alertas(emenda({ esfera: 'estadual', rs: rs() }))[0]).toMatch(/sem nenhum empenho/);
+    expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Empenho', 100000)]) }))[0]).toMatch(/sem pagamento/);
+    expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Pagamento', 100000)]) }))).toEqual([]);
   });
 });
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { credorPodeAparecer } from '../src/abase.ts';
+import { destino, lancamento, lerDestinacao, numeroEp, porAcao } from '../src/estadual.ts';
 import { coletarFns } from '../src/fns.ts';
 import { criarHttp } from '../src/http.ts';
 import { juntar } from '../src/juntar.ts';
@@ -9,6 +10,8 @@ import type { DadosCgu, EmendaAbase, Fonte, PagamentoCgu } from '../src/tipos.ts
 // Dados sintéticos: nenhum nome, CPF ou CNPJ real de pessoa ou empresa.
 const MUNICIPIO = '11222333000181';
 const fonte = {
+  municipio: 'Cidade Teste',
+  rs: { codMunicipio: 7 },
   uf: 'RS',
   ibge: 1,
   favorecidos: { [MUNICIPIO]: 'Município de Teste' },
@@ -106,7 +109,7 @@ describe('juntar', () => {
   const cgu: DadosCgu = { pagamentos: [pag('202611110001'), pag('202511110002', { mes: '2026-01' })], parcerias: [], planos_te: [] };
 
   it('casa CGU e Abase pela chave de 12 dígitos e separa as esferas', () => {
-    const lista = juntar(2026, cgu, new Map(), new Map(), [
+    const lista = juntar(2026, cgu, new Map(), new Map(), new Map(), [
       abase(1, 'Federal', '202611110001'),
       abase(2, 'Estadual', '740'),
       abase(3, 'Municipal', '3'),
@@ -122,11 +125,80 @@ describe('juntar', () => {
     expect(lista[0]!.abase).toHaveLength(1);
   });
   it('emenda de outro ano fica no ano dela, mesmo paga neste', () => {
-    expect(juntar(2026, cgu, new Map(), new Map(), []).map((e) => e.chave)).toEqual(['202611110001']);
-    expect(juntar(2025, cgu, new Map(), new Map(), []).map((e) => e.chave)).toEqual(['202511110002']);
+    expect(juntar(2026, cgu, new Map(), new Map(), new Map(), []).map((e) => e.chave)).toEqual(['202611110001']);
+    expect(juntar(2025, cgu, new Map(), new Map(), new Map(), []).map((e) => e.chave)).toEqual(['202511110002']);
+  });
+  it('estadual casa RS e Abase por Ano + nº; a do RS sem Abase (entidade) entra sozinha', () => {
+    const rs = lerDestinacao([dest({ Emenda: '740' }), dest({ Emenda: '900', CodSubtitulo: '26002', Subtitulo: 'Ep 900 - Clube Teste - Cidade Teste' })], fonte, [2026]);
+    const lista = juntar(2026, { pagamentos: [], parcerias: [], planos_te: [] }, new Map(), new Map(), rs, [abase(2, 'Estadual', '740'), abase(5, 'Estadual', '999')]);
+    expect(lista.map((e) => [e.chave, e.abase.length, e.rs?.numero ?? null])).toEqual([
+      ['abase-5', 1, null],
+      ['rs-2026-740', 1, '740'],
+      ['rs-2026-900', 0, '900'],
+    ]);
   });
   it('federal da Abase sem código da CGU fica com chave própria', () => {
-    expect(juntar(2026, { pagamentos: [], parcerias: [], planos_te: [] }, new Map(), new Map(), [abase(9, 'Federal', '12')])[0]!.chave).toBe('abase-9');
+    expect(juntar(2026, { pagamentos: [], parcerias: [], planos_te: [] }, new Map(), new Map(), new Map(), [abase(9, 'Federal', '12')])[0]!.chave).toBe('abase-9');
+  });
+});
+
+const dest = (o: Record<string, string> = {}): Record<string, string> => ({
+  Ano: '2026',
+  Municipio: 'Cidade Teste',
+  CodMunicipio: '7',
+  Orgao: 'Secretaria Teste',
+  NomeProjeto: 'Projeto Teste - Ep',
+  CodProjeto: '1028',
+  CodSubtitulo: '26001',
+  Subtitulo: 'Ep 740 - Atencao Basica - Cidade Teste',
+  Complemento: 'beneficiado',
+  Valor: '100000',
+  Emenda: '740',
+  Deputado: 'Deputado Teste',
+  Partido: 'XX',
+  ...o,
+});
+
+describe('estadual (RS)', () => {
+  it('destino sai do subtítulo, sem o nº e sem o município', () => {
+    expect(destino('Ep 1 - Clube Teste - Cidade Teste', 'Cidade Teste')).toBe('Clube Teste');
+    expect(destino('Ep 1 - Atencao Basica - Cidade Teste', 'Cidade Teste')).toBe('Atencao Basica');
+  });
+  it('nº da ação', () => {
+    expect(numeroEp('Ep 740-atencao Basica-cidade Teste')).toBe('740');
+    expect(numeroEp('EP 12 - Algo')).toBe('12');
+    expect(numeroEp('Manutencao de Escolas')).toBeNull();
+  });
+  it('subtítulo de outro ano que o da emenda quebra a coleta', () => {
+    expect(() => lerDestinacao([dest({ CodSubtitulo: '25001' })], fonte, [2026])).toThrow('ação');
+  });
+  it('destinação: filtra pelo código do município, junta subtítulos e soma', () => {
+    const m = lerDestinacao(
+      [dest(), dest({ CodSubtitulo: '26009', Subtitulo: 'Ep 740 - Outra Coisa - Cidade Teste', Valor: '' }), dest({ CodMunicipio: '8', Municipio: 'Outra' }), dest({ Ano: '2024' })],
+      fonte,
+      [2025, 2026],
+    );
+    expect([...m.keys()]).toEqual(['2026-740']);
+    expect(m.get('2026-740')).toMatchObject({ valor: 100000, deputado: 'Deputado Teste', destino: 'Atencao Basica' });
+    expect(m.get('2026-740')!.itens).toHaveLength(2);
+  });
+  it('código do município que mudou de nome quebra a coleta', () => {
+    expect(() => lerDestinacao([dest({ Municipio: 'Outra' })], fonte, [2026])).toThrow('CodMunicipio');
+  });
+  it('execução: casa pelo Cod_Acao, em qualquer exercício; outra ação fica fora; PF sem nome', () => {
+    const acoes = porAcao(lerDestinacao([dest()], fonte, [2026]));
+    const linha = (o: Record<string, string>) => ({
+      Exercicio: '2027', FaseGasto: 'Pagamento', Cod_Acao: '102826001', Acao: 'Ep 740-atencao Basica-cidade Teste',
+      Favorecido: 'Fundo Teste', CNPJ: '11.222.333/0001-81', Orgao: 'Secretaria Teste', Data: '02/07/2026', Valor: '100000,00', ...o,
+    });
+    expect(lancamento(linha({}), acoes)).toEqual([
+      '2026-740',
+      { exercicio: 2027, data: '2026-07-02', fase: 'Pagamento', favorecido: 'Fundo Teste', cnpj: '11222333000181', orgao: 'Secretaria Teste', valor: 100000 },
+    ]);
+    expect(lancamento(linha({ Cod_Acao: '102826999' }), acoes)).toBeNull();
+    expect(() => lancamento(linha({ Acao: 'Ep 741-outra' }), acoes)).toThrow('não é a emenda');
+    expect(() => lancamento(linha({ Data: 'Pagamento' }), acoes)).toThrow('data');
+    expect(lancamento(linha({ CNPJ: '123.456.789-09', Favorecido: 'FULANO' }), acoes)![1]).toMatchObject({ favorecido: null, cnpj: null });
   });
 });
 

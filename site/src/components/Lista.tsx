@@ -8,7 +8,7 @@ import { Historico } from './Historico.tsx';
 import { Origem } from './Origem.tsx';
 import { Coletado, PilulaEsfera, Seg } from './ui.tsx';
 
-const ROTULO_CHEGOU: Record<Esfera, string> = { federal: 'Pago pela União', estadual: 'Entrou na conta', municipal: '' };
+const ROTULO_CHEGOU: Record<Esfera, string> = { federal: 'Pago pela União', estadual: 'Pago pelo Estado', municipal: '' };
 
 function Cartao({ e }: { e: Emenda }) {
   const ind = indicado(e);
@@ -26,6 +26,7 @@ function Cartao({ e }: { e: Emenda }) {
           <PilulaEsfera esfera={e.esfera} />
         </div>
         <p className="card-o">{titulo(e)}</p>
+        {e.rs?.destino && !e.abase.length && <p className="card-m">Destino: {e.rs.destino}</p>}
         {e.esfera === 'municipal' && <p className="selo-mun">{SELO_MUNICIPAL}</p>}
         {alertas(e).length > 0 && <p className="card-al">Parada ou atrasada: ver detalhe</p>}
         <dl className="card-b">
@@ -67,7 +68,7 @@ function Totais({ esfera, lista, ano }: { esfera: Esfera; lista: Emenda[]; ano: 
       <dl>
         {caixa('Indicado', t.indicado, 'Valor de cada emenda na fonte mais próxima da prefeitura')}
         {esfera === 'federal' && caixa('Pago pela União', t.chegou, 'Pagamentos a Rolante na CGU, em qualquer mês')}
-        {esfera === 'estadual' && caixa('Entrou na conta da prefeitura', t.chegou, 'Receitas registradas no portal da prefeitura')}
+        {esfera === 'estadual' && caixa('Pago pelo Estado', t.chegou, 'Pagamentos na despesa do Estado (CAGE), à prefeitura ou à entidade')}
         {caixa('A prefeitura já pagou', t.pagou, 'Despesas pagas com a emenda, no portal da prefeitura')}
       </dl>
       {esfera === 'municipal' && <p className="selo-mun">{SELO_MUNICIPAL}</p>}
@@ -119,7 +120,7 @@ export function Lista({ dados }: { dados: Dados }) {
           <span className="topo-t">enviadas a Rolante/RS</span>
         </h1>
         <div className="src">
-          <span>Fontes: CGU, FNS, Transferegov e Portal da Transparência de Rolante ·</span>
+          <span>Fontes: CGU, FNS, Transferegov, SEFAZ/RS e Portal da Transparência de Rolante ·</span>
           <Coletado em={manifest.coletado_em} />
         </div>
       </section>

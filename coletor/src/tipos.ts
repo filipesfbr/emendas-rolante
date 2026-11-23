@@ -4,9 +4,11 @@ export type Fonte = {
   ibge: number;
   /** CNPJ (14 dígitos) → nome. Só estes favorecidos entram: o filtro por localidade da CGU não acha Rolante. */
   favorecidos: Record<string, string>;
-  /** Primeiro ano do histórico de pagamentos da CGU. */
-  historicoDesde: number;
+  /** Primeiro ano coletado e exibido, em todas as fontes e esferas (recorte de 23/11/2026: 2025 em diante). */
+  anoMinimo: number;
   cgu: { zip: string; pagina: string };
+  /** SEFAZ/CAGE do RS. `despesas` tem `{ano}` no lugar do exercício; `codMunicipio` é o código do RS, não o do IBGE. */
+  rs: { destinacao: string; despesas: string; portal: string; codMunicipio: number };
   fns: { api: string; portal: string };
   transferegov: { api: string; portal: string };
   abase: { api: string; token: string; portal: string; intervaloMs: number; desde: number };
@@ -90,6 +92,34 @@ export type PlanoTransferegov = {
   ordens_bancarias: { numero: string; data: string | null }[];
 };
 
+/** Lançamento da despesa do Estado (CAGE) com a ação «Ep <nº>». Sem o histórico em texto livre. */
+export type LancamentoRs = {
+  /** Exercício do arquivo de despesa (o pagamento pode cair no ano seguinte ao da emenda). */
+  exercicio: number;
+  data: string | null;
+  fase: string;
+  /** Nome e CNPJ só quando o favorecido tem CNPJ; pessoa física fica `null` (R8). */
+  favorecido: string | null;
+  cnpj: string | null;
+  orgao: string;
+  valor: number;
+};
+
+/** Emenda estadual destinada a Rolante (CSV da SEFAZ/CAGE), com a execução na despesa do Estado. */
+export type EmendaRs = {
+  ano: number;
+  numero: string;
+  deputado: string;
+  partido: string | null;
+  /** Soma das linhas da emenda no CSV de destinação (uma emenda pode ter mais de um subtítulo). */
+  valor: number;
+  /** `acao` = CodProjeto + CodSubtitulo: é o `Cod_Acao` da despesa do Estado, a chave da execução. */
+  itens: { acao: string; orgao: string | null; projeto: string | null; subtitulo: string; complemento: string | null; valor: number }[];
+  /** Destino como o subtítulo descreve («Fundacao Hospitalar de Rolante», «Atencao Basica»). */
+  destino: string | null;
+  execucao: LancamentoRs[];
+};
+
 export type EmpenhoAbase = {
   empenho: number;
   data: string | null;
@@ -119,7 +149,7 @@ export type EmendaAbase = {
 };
 
 export type Emenda = {
-  /** Código de 12 dígitos da CGU (AAAA + autor + número) nas federais; `abase-{codigo}` nas outras. */
+  /** Código de 12 dígitos da CGU nas federais; `rs-{ano}-{nº}` nas estaduais do RS; `abase-{codigo}` nas outras. */
   chave: string;
   esfera: Esfera;
   ano: number;
@@ -133,5 +163,6 @@ export type Emenda = {
   } | null;
   fns: PropostaFns[];
   transferegov: PlanoTransferegov[];
+  rs: EmendaRs | null;
   abase: EmendaAbase[];
 };

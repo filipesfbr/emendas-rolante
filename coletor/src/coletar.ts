@@ -32,22 +32,32 @@ async function main() {
   const fonte = JSON.parse(readFileSync('config/fonte.json', 'utf8')) as Fonte;
   const { hoje, em: iniciadoEm } = agoraBRT();
   const anoAtual = Number(hoje.slice(0, 4));
-  // Detalhe: ano atual e anterior. O histórico da CGU vai de `historicoDesde` até hoje, sempre inteiro.
-  const anos = process.env.ANOS ? process.env.ANOS.split(',').map(Number) : [anoAtual - 1, anoAtual];
+  // Recorte único: de `anoMinimo` até o ano atual, em todas as fontes e esferas. `ANOS` só restringe dentro dele.
+  const todos = Array.from({ length: anoAtual - fonte.anoMinimo + 1 }, (_, i) => fonte.anoMinimo + i);
+  const anos = process.env.ANOS ? process.env.ANOS.split(',').map(Number) : todos;
+  if (!anos.length || anos.some((a) => !todos.includes(a))) throw new Error(`ANOS fora do recorte ${fonte.anoMinimo}–${anoAtual}: ${anos}`);
 
   // Qualquer fonte quebrada lança erro aqui, antes de gravar: o site fica na coleta anterior.
+  let marca = Date.now();
+  const tempo = () => {
+    const s = ((Date.now() - marca) / 1000).toFixed(0);
+    marca = Date.now();
+    return `${s} s`;
+  };
+  console.log(`Recorte: ${anos.join(', ')}`);
   console.log('CGU: baixando o ZIP de emendas…');
   const cgu = await coletarCgu(fonte, anos);
-  console.log(`CGU: ${cgu.pagamentos.length} pagamentos desde ${fonte.historicoDesde} · dados até ${cgu.ate}`);
+  console.log(`CGU: ${cgu.pagamentos.length} pagamentos desde ${fonte.anoMinimo} · dados até ${cgu.ate} · ${tempo()}`);
   console.log('FNS…');
   const fns = await coletarFns(fonte, anos);
-  console.log(`FNS: ${fns.size} emendas de saúde`);
+  console.log(`FNS: ${fns.size} emendas de saúde · ${tempo()}`);
   console.log('Transferegov…');
   const transferegov = await coletarTransferegov(fonte, anos);
-  console.log(`Transferegov: ${transferegov.size} emendas Pix`);
+  console.log(`Transferegov: ${transferegov.size} emendas Pix · ${tempo()}`);
 
-  // TODO(estadual): fonte própria do RS em investigação; as estaduais vêm só da Abase por enquanto.
-  await coletarEstadual();
+  console.log('RS (SEFAZ/CAGE): destinação e despesas…');
+  const rs = await coletarEstadual(fonte, anos);
+  console.log(`RS: ${rs.emendas.size} emendas estaduais · ${tempo()}`);
 
   const abase = criarAbase(fonte);
   const porAno: Record<number, EmendaAbase[]> = {};
@@ -59,9 +69,11 @@ async function main() {
     }
   }
 
+  console.log(`Abase: ${anos.map((a) => `${a}: ${porAno[a]!.length}`).join(' · ')} · ${tempo()}`);
+
   const contagem: Record<number, Record<Esfera, number>> = {};
   const emendas = anos.map((ano) => {
-    const lista = juntar(ano, cgu, fns, transferegov, porAno[ano]!);
+    const lista = juntar(ano, cgu, fns, transferegov, rs.emendas, porAno[ano]!);
     contagem[ano] = { federal: 0, estadual: 0, municipal: 0 };
     for (const e of lista) contagem[ano][e.esfera]++;
     return [ano, lista] as const;
@@ -81,12 +93,18 @@ async function main() {
       coletado_em: agoraBRT().em,
       iniciado_em: iniciadoEm,
       anos,
-      historico_desde: fonte.historicoDesde,
+      ano_minimo: fonte.anoMinimo,
       favorecidos: fonte.favorecidos,
       fontes: {
         cgu: { pagina: fonte.cgu.pagina, zip: fonte.cgu.zip, atualizado_em: cgu.atualizado_em, dados_ate: cgu.ate },
         fns: { portal: fonte.fns.portal },
         transferegov: { portal: fonte.transferegov.portal },
+        rs: {
+          portal: fonte.rs.portal,
+          destinacao: fonte.rs.destinacao,
+          destinacao_atualizada_em: rs.destinacao_atualizada_em,
+          despesas_atualizadas_em: rs.despesas_atualizadas_em,
+        },
         abase: { portal: fonte.abase.portal, desde: fonte.abase.desde },
       },
       repositorio: fonte.repositorio,

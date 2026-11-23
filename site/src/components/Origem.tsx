@@ -20,9 +20,9 @@ export function Origem({ manifest }: { manifest: Manifest }) {
       <h2 className="origem-h" id="t-origem">
         De onde vêm os dados
       </h2>
-      <p className="origem-lead">Quatro fontes públicas, cada uma mostrando um pedaço do caminho do dinheiro.</p>
+      <p className="origem-lead">Cinco fontes públicas, cada uma mostrando um pedaço do caminho do dinheiro.</p>
       <p className="origem-p">
-        Os dados são coletados uma vez por mês, no dia 25. Este site é independente e não tem vínculo com a prefeitura, com a Câmara nem com
+        Só emendas de {manifest.ano_minimo} em diante. Os dados são coletados uma vez por mês, no dia 25. Este site é independente e não tem vínculo com a prefeitura, com a Câmara nem com
         nenhum parlamentar.
       </p>
 
@@ -40,7 +40,7 @@ export function Origem({ manifest }: { manifest: Manifest }) {
         <div>
           <h3>CGU (Portal da Transparência federal)</h3>
           <p>
-            Pagamentos de emendas federais aos CNPJs do Município e dos fundos municipais, desde {manifest.historico_desde}, e o objeto das
+            Pagamentos de emendas federais aos CNPJs do Município e dos fundos municipais, desde {manifest.ano_minimo}, e o objeto das
             parcerias e das emendas Pix. Dados até {formatMes(f.cgu.dados_ate)}. <LinkExterno href={f.cgu.pagina}>Baixar na CGU</LinkExterno>
           </p>
         </div>
@@ -56,6 +56,14 @@ export function Origem({ manifest }: { manifest: Manifest }) {
           <p>
             Plano de ação, objeto, metas, prazo, empenho e ordem bancária das transferências especiais. A base pública anda meses atrás da
             CGU. <LinkExterno href={f.transferegov.portal}>Abrir o Transferegov</LinkExterno>
+          </p>
+        </div>
+        <div>
+          <h3>SEFAZ/RS (emendas estaduais)</h3>
+          <p>
+            Destinação de cada emenda dos deputados estaduais a Rolante (deputado, partido, valor, destino) e a execução na despesa do
+            Estado (CAGE): empenho, liquidação e pagamento, à prefeitura ou à entidade. Arquivos abertos da SEFAZ, sem chave.{' '}
+            <LinkExterno href={f.rs.portal}>Abrir o painel do RS</LinkExterno>
           </p>
         </div>
         <div>

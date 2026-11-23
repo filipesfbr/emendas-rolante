@@ -20,6 +20,8 @@ concurrency:
 
 jobs:
   build:
+    # Sem deploy até o domínio ficar pronto: liga com a variável do repositório DEPLOY_PAGES=true.
+    if: vars.DEPLOY_PAGES == 'true'
     runs-on: ubuntu-latest
 
     steps:
