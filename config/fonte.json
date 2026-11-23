@@ -1,0 +1,32 @@
+{
+  "municipio": "Rolante",
+  "uf": "RS",
+  "ibge": 431600,
+  "favorecidos": {
+    "90936956000192": "Município de Rolante",
+    "11425702000133": "Fundo Municipal de Saúde de Rolante",
+    "14806747000146": "Fundo Municipal de Assistência Social de Rolante"
+  },
+  "historicoDesde": 2019,
+  "cgu": {
+    "zip": "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/emendas-parlamentares/EmendasParlamentares.zip",
+    "pagina": "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares"
+  },
+  "fns": {
+    "api": "https://consultafns.saude.gov.br/recursos/proposta/",
+    "portal": "https://consultafns.saude.gov.br/"
+  },
+  "transferegov": {
+    "api": "https://api.transferegov.gestao.gov.br/transferenciasespeciais/",
+    "portal": "https://especiais.transferegov.sistema.gov.br/"
+  },
+  "abase": {
+    "api": "https://apitransparencia.abase.com.br/",
+    "token": "apvqyIT7vjY=",
+    "portal": "https://transparencia.abase.com.br/home/apvqyIT7vjY=",
+    "intervaloMs": 1200,
+    "desde": 2026
+  },
+  "repositorio": "https://github.com/filipesfbr/emendas-rolante",
+  "userAgent": "EmendasRolante/1.0 (+https://github.com/filipesfbr/emendas-rolante)"
+}

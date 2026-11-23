@@ -1,0 +1,88 @@
+name: Coleta mensal
+
+# Coleta CGU, FNS, Transferegov e o módulo de emendas da Abase e grava na branch `data`.
+# Qualquer fonte quebrada (HTTP, cabeçalho novo, contagem que não fecha) → o coletor sai com erro,
+# nada é commitado e o site continua no último snapshot. Nunca grava vazio.
+# Push com GITHUB_TOKEN não dispara workflow: o deploy é chamado daqui.
+
+on:
+  schedule:
+    # Dia 25, 10:47 UTC = 07:47 de Brasília (minuto quebrado: o cron das horas cheias atrasa).
+    - cron: '47 10 25 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: coleta
+  cancel-in-progress: false
+
+jobs:
+  coleta:
+    runs-on: ubuntu-latest
+    # Abase: ~620 chamadas com 1,2 s de pausa (~13 min em 2026). Limite com folga.
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Configurar git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Abrir a branch data em ./data
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
+            git fetch --depth=1 origin data:refs/remotes/origin/data
+            git worktree add -B data data origin/data
+          else
+            echo "::notice::Branch data não existe — primeira coleta, criando órfã"
+            git worktree add --orphan -b data data
+          fi
+
+      - name: Coletar
+        run: npm run coletar
+
+      # R8: CPF nunca chega ao repositório (credor sem rubrica de pessoa jurídica vai sem nome).
+      - name: Conferir privacidade (R8)
+        run: |
+          set -euo pipefail
+          if grep -rlP '(?<![\d./-])\d{3}\.\d{3}\.\d{3}-\d{2}(?![\d./-])' data --exclude-dir=.git; then
+            echo "::error::CPF formatado nos dados"; exit 1
+          fi
+          if grep -rlE '"(numero_conta|agencia|conta_executor|qsa|email)' data --exclude-dir=.git; then
+            echo "::error::campo proibido nos dados"; exit 1
+          fi
+
+      - name: Commitar na branch data
+        working-directory: data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nada mudou"
+            exit 0
+          fi
+          git commit -q -m "dados: coleta $(TZ=America/Sao_Paulo date +%F)"
+          # Token só aqui: fora do .git/config durante a coleta.
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"
+          git push origin data
+
+  deploy:
+    needs: coleta
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml
