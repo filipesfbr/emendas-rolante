@@ -1,0 +1,59 @@
+{
+  "coletado_em": "2026-11-23T14:14:00-03:00",
+  "iniciado_em": "2026-11-23T13:57:32-03:00",
+  "anos": [
+    2025,
+    2026
+  ],
+  "ano_minimo": 2025,
+  "favorecidos": {
+    "90936956000192": "Município de Rolante",
+    "11425702000133": "Fundo Municipal de Saúde de Rolante",
+    "14806747000146": "Fundo Municipal de Assistência Social de Rolante"
+  },
+  "fontes": {
+    "cgu": {
+      "pagina": "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares",
+      "zip": "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/emendas-parlamentares/EmendasParlamentares.zip",
+      "atualizado_em": "2026-11-19T22:36:28.000Z",
+      "dados_ate": "2026-11"
+    },
+    "fns": {
+      "portal": "https://consultafns.saude.gov.br/"
+    },
+    "transferegov": {
+      "portal": "https://especiais.transferegov.sistema.gov.br/"
+    },
+    "rs": {
+      "portal": "https://www.transparencia.rs.gov.br/emendas-parlamentares/emendas-parlamentares-estaduais/dados/",
+      "destinacao": "https://arquivostransparencia.sefaz.rs.gov.br/DadosAbertos/Emendas%20Parlamentares%20Estaduais.zip",
+      "destinacao_atualizada_em": "2026-11-23T12:57:53.000Z",
+      "despesas_atualizadas_em": {
+        "2025": "2026-05-30T03:15:43.000Z",
+        "2026": "2026-11-23T11:49:52.000Z"
+      }
+    },
+    "abase": {
+      "portal": "https://transparencia.abase.com.br/home/apvqyIT7vjY=",
+      "desde": 2026
+    }
+  },
+  "repositorio": "https://github.com/filipesfbr/emendas-rolante",
+  "contagem": {
+    "2025": {
+      "federal": 9,
+      "estadual": 3,
+      "municipal": 0
+    },
+    "2026": {
+      "federal": 10,
+      "estadual": 11,
+      "municipal": 28
+    }
+  },
+  "arquivos": {
+    "historico.json": "sha256:c76736f1da0dc4809c6809fbfbdd0f9fd3d90c1959fd7ca9dffa8175946f8612",
+    "emendas/2025.json": "sha256:9190e2d1da949ab12b069199c85229bb15c9c75e386131297ae8004ab03afea5",
+    "emendas/2026.json": "sha256:6ab27e24446e406b9c8905c3f46a972a3d3652ed7da47d0d7abc265abd6a5607"
+  }
+}
