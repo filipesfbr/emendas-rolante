@@ -45,6 +45,7 @@ prefeitura, a Câmara ou parlamentares. As regras de onde vem cada dado estão e
   As três nunca são somadas num «total trazido».
 - **Cartão de cada emenda:** autor, partido (com a fonte), objeto, valor indicado, o que chegou e o que a
   prefeitura já pagou. Emenda municipal sempre com o selo «Orçamento do próprio município. Não é dinheiro novo.»
+  e sem «já pagou» (ver limites).
 - **Página de cada emenda:** pagamentos da União (CGU), proposta do FNS, plano da emenda Pix, destinação e
   despesa do Estado (SEFAZ/CAGE) e, no portal da prefeitura, a entrada na conta, os empenhos, os credores e a
   licitação, com link para o [Licitações Rolante](https://licitacoes.rolanters.com.br/).
@@ -133,6 +134,9 @@ npm run lint && npm run build && npm test
 - **Transferegov anda meses atrás da CGU.** **FNS é API interna sem documentação.**
 - **Credor sem documento.** Na prefeitura, o nome só aparece quando a rubrica é de pessoa jurídica, repasse a
   entidade ou o nome tem marca de empresa (heurística em `coletor/src/abase.ts`). No Estado, só com CNPJ.
+- **Municipal sem valor pago por emenda.** O portal liga à emenda municipal os empenhos da dotação inteira (o
+  mesmo empenho de R$ 1.287.000 aparece nas 9 emendas de R$ 143.000 à Fundação Hospitalar) e nada separa a parte
+  dela. O site lista esses empenhos com esse aviso e não soma nada (R9).
 - **Partido diverge entre fontes** (ex.: Elizandro Sabino, Republicanos na Abase e PRD no RS): o site mostra cada
   um com a fonte e a data.
 

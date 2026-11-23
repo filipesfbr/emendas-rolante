@@ -117,6 +117,8 @@ export type EmendaRs = {
   itens: { acao: string; orgao: string | null; projeto: string | null; subtitulo: string; complemento: string | null; valor: number }[];
   /** Destino como o subtítulo descreve («Fundacao Hospitalar de Rolante», «Atencao Basica»). */
   destino: string | null;
+  /** Exercícios da despesa do Estado lidos nesta coleta. Vazio: execução não coletada (não é «sem empenho»). */
+  exercicios_lidos: number[];
   execucao: LancamentoRs[];
 };
 

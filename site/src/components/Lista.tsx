@@ -40,10 +40,12 @@ function Cartao({ e }: { e: Emenda }) {
               <dd className="num">{formatBRL(che.valor)}</dd>
             </div>
           )}
-          <div>
-            <dt>Prefeitura pagou</dt>
-            <dd className="num">{pag ? formatBRL(pag.valor) : '—'}</dd>
-          </div>
+          {e.esfera !== 'municipal' && (
+            <div>
+              <dt>Prefeitura pagou</dt>
+              <dd className="num">{pag ? formatBRL(pag.valor) : '—'}</dd>
+            </div>
+          )}
         </dl>
       </a>
     </li>
@@ -69,7 +71,7 @@ function Totais({ esfera, lista, ano }: { esfera: Esfera; lista: Emenda[]; ano: 
         {caixa('Indicado', t.indicado, 'Valor de cada emenda na fonte mais próxima da prefeitura')}
         {esfera === 'federal' && caixa('Pago pela União', t.chegou, 'Pagamentos a Rolante na CGU, em qualquer mês')}
         {esfera === 'estadual' && caixa('Pago pelo Estado', t.chegou, 'Pagamentos na despesa do Estado (CAGE), à prefeitura ou à entidade')}
-        {caixa('A prefeitura já pagou', t.pagou, 'Despesas pagas com a emenda, no portal da prefeitura')}
+        {esfera !== 'municipal' && caixa('A prefeitura já pagou', t.pagou, 'Despesas pagas com a emenda, no portal da prefeitura')}
       </dl>
       {esfera === 'municipal' && <p className="selo-mun">{SELO_MUNICIPAL}</p>}
     </section>
@@ -93,9 +95,6 @@ function Tipo({ esfera }: { esfera: Esfera }) {
         <div>
           <dt>Na prática</dt>
           <dd>{t.pratica}</dd>
-        </div>
-        <div>
-          <dt>A ironia</dt>
           <dd>{t.ironia}</dd>
         </div>
       </dl>

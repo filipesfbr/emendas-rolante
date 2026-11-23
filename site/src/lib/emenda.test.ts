@@ -39,6 +39,7 @@ const rs = (execucao: EmendaRs['execucao'] = []): EmendaRs => ({
   valor: 100000,
   itens: [{ acao: '102826001', orgao: null, projeto: null, subtitulo: 'Ep 740 - Clube Teste - Cidade', complemento: null, valor: 100000 }],
   destino: 'Clube Teste',
+  exercicios_lidos: [2026],
   execucao,
 });
 const lanc = (fase: string, valor: number) => ({ exercicio: 2026, data: '2026-07-02', fase, favorecido: null, cnpj: null, orgao: 'O', valor });
@@ -70,7 +71,10 @@ describe('valores', () => {
   });
   it('sem a emenda no portal da prefeitura, não há como saber o que ela pagou', () => {
     expect(prefeituraPagou(emenda({ esfera: 'federal' }))).toBeNull();
-    expect(prefeituraPagou(emenda({ abase: [abase({ empenhos: [empenho(10), empenho(5.5)] })] }))).toEqual({ valor: 15.5, fonte: 'Prefeitura' });
+    expect(prefeituraPagou(emenda({ esfera: 'federal', abase: [abase({ empenhos: [empenho(10), empenho(5.5)] })] }))).toEqual({ valor: 15.5, fonte: 'Prefeitura' });
+  });
+  it('municipal nunca tem «prefeitura pagou»: os empenhos são da dotação inteira', () => {
+    expect(prefeituraPagou(emenda({ abase: [abase({ empenhos: [empenho(1287000)] })] }))).toBeNull();
   });
 });
 
@@ -89,12 +93,17 @@ describe('estadual', () => {
     expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Empenho', 100000)]) }))[0]).toMatch(/sem pagamento/);
     expect(alertas(emenda({ esfera: 'estadual', rs: rs([lanc('Pagamento', 100000)]) }))).toEqual([]);
   });
+  it('despesa do Estado não lida: sem «chegou» e sem alerta (não é «sem empenho»)', () => {
+    const e = emenda({ esfera: 'estadual', rs: { ...rs(), exercicios_lidos: [] } });
+    expect(chegou(e)).toBeNull();
+    expect(alertas(e)).toEqual([]);
+  });
 });
 
 describe('totais', () => {
   it('somam só a lista recebida (o site passa uma esfera por vez)', () => {
     const t = totais([emenda({ abase: [abase({ valor: 10 })] }), emenda({ abase: [abase({ valor: 20 })] })]);
-    expect(t).toEqual({ quantidade: 2, indicado: 30, chegou: null, pagou: 0 });
+    expect(t).toEqual({ quantidade: 2, indicado: 30, chegou: null, pagou: null });
   });
 });
 

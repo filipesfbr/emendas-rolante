@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import type { Emenda } from '../../../coletor/src/tipos.ts';
 import type { Dados } from '../App.tsx';
-import { alertas, autores, AVISO_PARADO, chegou, faseRs, indicado, NOME_ESFERA, partidos, prefeituraPagou, titulo } from '../lib/emenda.ts';
+import { alertas, autores, AVISO_PARADO, chegou, execucaoColetada, faseRs, indicado, NOME_ESFERA, partidos, prefeituraPagou, titulo } from '../lib/emenda.ts';
 import { formatBRL, formatDate, formatMes } from '../lib/format.ts';
-import { SELO_MUNICIPAL } from '../lib/textos.ts';
+import { DOTACAO_MUNICIPAL, SELO_MUNICIPAL } from '../lib/textos.ts';
 import { Coletado, IcoVoltar, LinkExterno, Numero, PilulaEsfera } from './ui.tsx';
 
 const LICITACOES = 'https://licitacoes.rolanters.com.br/#/licitacao/';
@@ -144,28 +144,34 @@ function Rs({ e }: { e: Emenda }) {
         <span className="rot">Destinação</span>
         <Linhas itens={r.itens.map((i) => [i.subtitulo, formatBRL(i.valor), [i.orgao, i.projeto].filter(Boolean).join(' · ')])} />
       </div>
-      <dl className="dados">
-        {['Empenho', 'Liquidação', 'Pagamento'].map((f) => (
-          <div key={f}>
-            <dt>{f === 'Empenho' ? 'Empenhado' : f === 'Liquidação' ? 'Liquidado' : 'Pago'}</dt>
-            <dd className="num">{formatBRL(faseRs(e, f))}</dd>
+      {!execucaoColetada(e) ? (
+        <p className="bloco-d">Execução não coletada nesta versão dos dados: a despesa do Estado não foi lida.</p>
+      ) : (
+        <>
+          <dl className="dados">
+            {['Empenho', 'Liquidação', 'Pagamento'].map((f) => (
+              <div key={f}>
+                <dt>{f === 'Empenho' ? 'Empenhado' : f === 'Liquidação' ? 'Liquidado' : 'Pago'}</dt>
+                <dd className="num">{formatBRL(faseRs(e, f))}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="bloco-d">
+            <span className="rot">Despesa do Estado</span>
+            {r.execucao.length ? (
+              <Linhas
+                itens={r.execucao.map((l) => [
+                  `${l.fase} · ${l.favorecido ?? 'Favorecido sem CNPJ (pode ser pessoa física; não identificado aqui)'}`,
+                  formatBRL(l.valor),
+                  `${data(l.data)} · ${l.orgao}${l.cnpj ? ` · CNPJ ${l.cnpj}` : ''}`,
+                ])}
+              />
+            ) : (
+              <p>Nenhum lançamento na despesa do Estado até a coleta.</p>
+            )}
           </div>
-        ))}
-      </dl>
-      <div className="bloco-d">
-        <span className="rot">Despesa do Estado</span>
-        {r.execucao.length ? (
-          <Linhas
-            itens={r.execucao.map((l) => [
-              `${l.fase} · ${l.favorecido ?? 'Favorecido sem CNPJ (pode ser pessoa física; não identificado aqui)'}`,
-              formatBRL(l.valor),
-              `${data(l.data)} · ${l.orgao}${l.cnpj ? ` · CNPJ ${l.cnpj}` : ''}`,
-            ])}
-          />
-        ) : (
-          <p>Nenhum lançamento na despesa do Estado até a coleta.</p>
-        )}
-      </div>
+        </>
+      )}
     </Secao>
   );
 }
@@ -206,7 +212,8 @@ function Prefeitura({ e }: { e: Emenda }) {
             </div>
           )}
           <div className="bloco-d">
-            <span className="rot">Despesas (empenhos)</span>
+            <span className="rot">{e.esfera === 'municipal' ? 'Empenhos da dotação ligados à emenda (incluem outras despesas)' : 'Despesas (empenhos)'}</span>
+            {e.esfera === 'municipal' && <p className="d">{DOTACAO_MUNICIPAL}</p>}
             {a.empenhos.length ? (
               <Linhas
                 itens={a.empenhos.map((x) => [
@@ -278,12 +285,22 @@ export function Detalhe({ dados, chave }: { dados: Dados; chave: string }) {
       <dl className="dados numeros">
         <Numero rotulo="Indicado" v={indicado(e)} vazio="Sem valor nas fontes" />
         {e.esfera !== 'municipal' && (
-          <Numero rotulo={e.esfera === 'federal' ? 'Pago pela União' : 'Pago pelo Estado'} v={chegou(e)} vazio="Sem registro" />
+          <Numero
+            rotulo={e.esfera === 'federal' ? 'Pago pela União' : 'Pago pelo Estado'}
+            v={chegou(e)}
+            vazio={e.rs && !execucaoColetada(e) ? 'Execução não coletada' : 'Sem registro'}
+          />
         )}
         <Numero
           rotulo="A prefeitura já pagou"
           v={prefeituraPagou(e)}
-          vazio={e.rs && !e.abase.length ? 'Não passa pela prefeitura' : 'Emenda fora do portal da prefeitura'}
+          vazio={
+            e.esfera === 'municipal'
+              ? 'Não separável: empenhos da dotação inteira'
+              : e.rs && !e.abase.length
+                ? 'Não passa pela prefeitura'
+                : 'Emenda fora do portal da prefeitura'
+          }
         />
       </dl>
 

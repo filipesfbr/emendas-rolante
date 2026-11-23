@@ -93,6 +93,15 @@ entidades de destino das emendas estaduais). **Recorte: emendas de 2025 em diant
 - Alerta de «parada ou atrasada» é o fato que a fonte registra (empenhada sem pagamento, plano reprovado, dinheiro
   na conta sem despesa), sempre com o aviso dos 36 meses da emenda Pix. Nunca é acusação.
 - Partido aparece com a fonte e a data da coleta, porque as fontes divergem e o partido muda.
+- **Emenda municipal não tem «a prefeitura já pagou»** (decisão de 23/11/2026). A Abase liga à emenda municipal
+  os empenhos da dotação inteira: o empenho 5035/2026, de R$ 1.287.000, aparece em cada uma das 9 emendas de
+  R$ 143.000 à Fundação Hospitalar, e os repasses a CTG, Bombeiros e Consepro trazem os mesmos 11 empenhos da
+  dotação de subvenções. Nenhum campo do empenho separa a parte da emenda (`especificacao` vazia, vínculo
+  livre 500/501, sem itens). O detalhe lista esses empenhos com o rótulo «empenhos da dotação ligados à emenda
+  (incluem outras despesas)», e nada disso entra em total. Federal e estadual usam vínculo próprio e não têm o
+  problema: nenhum empenho compartilhado e nenhum acima do valor da emenda.
+- **Execução estadual não coletada não é «sem empenho».** Cada emenda do RS grava os exercícios da despesa lidos
+  (`exercicios_lidos`); sem nenhum, o site mostra «execução não coletada» e não dá alerta.
 
 ---
 

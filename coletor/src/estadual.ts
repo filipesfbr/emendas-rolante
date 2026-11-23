@@ -73,6 +73,7 @@ export function lerDestinacao(linhas: Record<string, string>[], fonte: Fonte, an
       valor: item.valor,
       itens: [item],
       destino: destino(subtitulo, fonte.municipio),
+      exercicios_lidos: [],
       execucao: [],
     });
   }
@@ -149,6 +150,7 @@ export async function coletarEstadual(fonte: Fonte, anos: number[]): Promise<Dad
         // as usadas aqui vêm antes. Data e valor fora do formato quebram a coleta em `lancamento`.
       }, true, filtro);
       console.log(`${rotulo}: ${total} linhas das ações de ${fonte.municipio}, ${achados} lançamentos`);
+      for (const e of emendas.values()) e.exercicios_lidos.push(exercicio);
       return modificado;
     });
   }

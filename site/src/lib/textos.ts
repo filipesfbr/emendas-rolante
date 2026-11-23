@@ -11,6 +11,10 @@ export const GERAL = {
 
 export const SELO_MUNICIPAL = 'Orçamento do próprio município. Não é dinheiro novo.';
 
+/** Por que a emenda municipal não tem «a prefeitura já pagou» (decisão de 23/11/2026, docs/fonte-de-verdade.md R9). */
+export const DOTACAO_MUNICIPAL =
+  'O portal liga a esta emenda os empenhos da dotação inteira, que incluem outras despesas e outras emendas. Não dá para separar quanto foi pago com esta emenda.';
+
 export const TIPOS: Record<Esfera, { quem: string; deOnde: string; pratica: string; ironia: string }> = {
   federal: {
     quem: 'Deputados federais e senadores.',
@@ -24,7 +28,7 @@ export const TIPOS: Record<Esfera, { quem: string; deOnde: string; pratica: stri
     quem: 'Deputados estaduais do RS.',
     deOnde: 'Do orçamento do Estado do RS, ou seja, ICMS, IPVA e outros impostos estaduais que você paga.',
     pratica: 'O deputado estadual direciona parte do orçamento do RS para Rolante, para a prefeitura ou para uma entidade.',
-    ironia: 'O mesmo caminho, mas mais curto. Foi para Porto Alegre e voltou com um nome na placa.',
+    ironia: 'É o mesmo caminho, mas mais curto. Foi para Porto Alegre e voltou com um nome na placa.',
   },
   municipal: {
     quem: 'Vereadores de Rolante.',

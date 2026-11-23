@@ -179,7 +179,7 @@ describe('estadual (RS)', () => {
       [2025, 2026],
     );
     expect([...m.keys()]).toEqual(['2026-740']);
-    expect(m.get('2026-740')).toMatchObject({ valor: 100000, deputado: 'Deputado Teste', destino: 'Atencao Basica' });
+    expect(m.get('2026-740')).toMatchObject({ valor: 100000, deputado: 'Deputado Teste', destino: 'Atencao Basica', exercicios_lidos: [] });
     expect(m.get('2026-740')!.itens).toHaveLength(2);
   });
   it('código do município que mudou de nome quebra a coleta', () => {
