@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createWriteStream, mkdtempSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -16,15 +16,29 @@ export async function comZip<T>(
   op: { userAgent: string; minimo: number; rotulo: string; timeoutMs?: number },
   usar: (zip: string, modificado: string | null) => Promise<T>,
 ): Promise<T> {
-  const inicio = Date.now();
-  const resp = await fetch(url, { headers: { 'User-Agent': op.userAgent }, signal: AbortSignal.timeout(op.timeoutMs ?? 300_000) });
-  if (!resp.ok || !resp.body) throw new Error(`${op.rotulo}: HTTP ${resp.status} no ZIP`);
   const pasta = mkdtempSync(join(tmpdir(), 'emendas-'));
   try {
     const zip = join(pasta, 'arquivo.zip');
-    await pipeline(Readable.fromWeb(resp.body as import('node:stream/web').ReadableStream), createWriteStream(zip));
+    // O servidor do RS já entregou o ZIP com o tamanho certo mas sem diretório central (23/11/2026): `unzip -l` lê só o
+    // diretório e pega isso em milissegundos, antes de gastar a leitura de 7,9 GB. Baixa de novo até 3 vezes.
+    let resp: Response;
+    let inicio: number;
+    for (let tentativa = 1; ; tentativa++) {
+      inicio = Date.now();
+      resp = await fetch(url, { headers: { 'User-Agent': op.userAgent }, signal: AbortSignal.timeout(op.timeoutMs ?? 300_000) });
+      if (!resp.ok || !resp.body) throw new Error(`${op.rotulo}: HTTP ${resp.status} no ZIP`);
+      await pipeline(Readable.fromWeb(resp.body as import('node:stream/web').ReadableStream), createWriteStream(zip));
+      const tamanho = statSync(zip).size;
+      if (tamanho < op.minimo) throw new Error(`${op.rotulo}: ZIP com ${tamanho} bytes`);
+      try {
+        execFileSync('unzip', ['-l', zip], { stdio: 'ignore' });
+        break;
+      } catch {
+        if (tentativa === 3) throw new Error(`${op.rotulo}: ZIP corrompido (${tamanho} bytes) após 3 downloads`);
+        console.log(`${op.rotulo}: ZIP corrompido (${tamanho} bytes), baixando de novo (${tentativa}/3)`);
+      }
+    }
     const tamanho = statSync(zip).size;
-    if (tamanho < op.minimo) throw new Error(`${op.rotulo}: ZIP com ${tamanho} bytes`);
     const baixado = Date.now();
     console.log(`${op.rotulo}: ${(tamanho / 1e6).toFixed(1)} MB baixados em ${((baixado - inicio) / 1000).toFixed(0)} s`);
     const modificado = resp.headers.get('last-modified');
