@@ -34,8 +34,7 @@ emenda tem link para conferir na origem.
 É da mesma família do [Impostômetro](https://github.com/filipesfbr/impostometro-rolante), do
 [Gastômetro](https://github.com/filipesfbr/gastometro-rolante) e do
 [Licitações Rolante](https://github.com/filipesfbr/licitacoes-rolante). Site independente, sem vínculo com a
-prefeitura, a Câmara ou parlamentares. As regras de onde vem cada dado estão em
-[`docs/fonte-de-verdade.md`](docs/fonte-de-verdade.md) (R1–R9).
+prefeitura, a Câmara ou parlamentares.
 
 > **Estado:** em desenvolvimento. Coletor e site prontos localmente; ainda sem deploy nem domínio.
 
