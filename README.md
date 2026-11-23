@@ -9,6 +9,8 @@
 
 **As emendas parlamentares federais, estaduais e municipais de Rolante/RS: quem indicou, quanto chegou e o que foi feito com o dinheiro, com dados da CGU, do FNS, do Transferegov, da SEFAZ/RS e do Portal da Transparência da Prefeitura.**
 
+[![Acessar o site](https://img.shields.io/badge/Acessar_o_site-emendas.rolanters.com.br-b4622f?style=for-the-badge&labelColor=26221d)](https://emendas.rolanters.com.br/)
+
 [![CI](https://github.com/filipesfbr/emendas-rolante/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/filipesfbr/emendas-rolante/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
